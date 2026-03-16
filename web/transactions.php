@@ -32,5 +32,5 @@ echo "</table>";
 ?>
 
 <br>
-<a href="index.php">Back</a>
+<a href="dashboard.php">Back</a>
 
