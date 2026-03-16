@@ -3,6 +3,7 @@ from mfrc522 import SimpleMFRC522
 import mysql.connector
 from decimal import Decimal
 import time
+import sys
 
 # GPIO 设置
 GPIO.setwarnings(False)
@@ -29,7 +30,7 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 
 # 输入金额
-amount = Decimal(input("Enter payment amount: "))
+amount = Decimal(sys.argv[1])
 
 try:
 
