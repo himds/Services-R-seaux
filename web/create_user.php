@@ -1,23 +1,45 @@
 <?php
 include "db.php";
 
+$message = "";
+
 if(isset($_POST["name"])){
 
     $name = $_POST["name"];
     $rfid = $_POST["rfid"];
 
-    $stmt = $conn->prepare(
-        "INSERT INTO users(name,rfid_uid,balance,status) VALUES(?,?,0,'active')"
-    );
+    if(empty($rfid)){
+        $message = "<p style='color:red;'>❌ Veuillez scanner une carte RFID !</p>";
+    } else {
 
-    $stmt->bind_param("ss", $name, $rfid);
-    $stmt->execute();
+        // 🔍 检查 RFID 是否已存在
+        $check = $conn->prepare("SELECT id FROM users WHERE rfid_uid=?");
+        $check->bind_param("s", $rfid);
+        $check->execute();
+        $result = $check->get_result();
 
-    echo "✅ User created successfully";
+        if($result->num_rows > 0){
+            $message = "<p style='color:red;'>❌ RFID déjà utilisé !</p>";
+        } else {
+
+            // ✅ 插入用户
+            $stmt = $conn->prepare(
+                "INSERT INTO users(name,rfid_uid,balance,status) VALUES(?,?,0,'active')"
+            );
+
+            $stmt->bind_param("ss", $name, $rfid);
+            $stmt->execute();
+
+            $message = "<p style='color:green;'>✅ Utilisateur créé avec succès</p>";
+        }
+    }
 }
 ?>
 
 <h2>Create User</h2>
+
+<!-- 显示提示 -->
+<?php echo $message; ?>
 
 <!-- 选择方式 -->
 <label>
@@ -30,10 +52,10 @@ if(isset($_POST["name"])){
 
 <br><br>
 
-<form method="POST">
+<form method="POST" onsubmit="return validateForm()">
 
 Name:<br>
-<input type="text" name="name"><br><br>
+<input type="text" name="name" required><br><br>
 
 <!-- 手动输入 -->
 <div id="manualInput">
@@ -55,6 +77,7 @@ RFID UID:<br>
 <a href="index.php">Back</a>
 
 <script>
+// 切换模式
 function toggleMode(){
     let mode = document.querySelector('input[name="mode"]:checked').value;
 
@@ -66,14 +89,26 @@ function toggleMode(){
         document.getElementById("rfidScan").style.display = "block";
     }
 }
-
-// 调用 Python RFID
 function scanRFID(){
-    fetch("scan.php")
-    .then(response => response.text())
+    setInterval(() => {
+    fetch("/scan.php")
+    .then(r => r.text())
     .then(data => {
-        document.getElementById("result").innerHTML = "UID: " + data;
-        document.getElementById("rfid").value = data;
+        if(data.trim() !== ""){
+            document.getElementById("result").innerHTML = "UID: " + data;
+            document.getElementById("rfid").value = data;
+        }
     });
+    }, 1000);
+}
+// 提交前验证
+function validateForm(){
+    let rfid = document.getElementById("rfid").value;
+
+    if(rfid === ""){
+        alert("Veuillez scanner une carte RFID !");
+        return false;
+    }
+    return true;
 }
 </script>

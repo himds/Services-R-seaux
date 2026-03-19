@@ -3,10 +3,9 @@
 session_start();
 include "db.php";
 
-$name = $_POST["name"];
+$uid = $_GET["uid"];
 
-$sql = "SELECT * FROM users WHERE name='$name'";
-
+$sql = "SELECT * FROM users WHERE rfid_uid='$uid' AND status='active'";
 $result = $conn->query($sql);
 
 if($result->num_rows > 0){
@@ -15,26 +14,24 @@ if($result->num_rows > 0){
 
     if($row["role"] == "admin"){
 
-        $_SESSION["admin"] = $name;
+        $_SESSION["admin"] = $row["name"];
         header("Location: dashboard.php");
 
-    }
-    elseif($row["role"] == "merchant"){
+    }elseif($row["role"] == "merchant"){
 
-        $_SESSION["merchant"] = $name;
+        $_SESSION["merchant"] = $row["name"];
         header("Location: merchant_dashboard.php");
-    }
-    else{
 
-        $_SESSION["user"] = $name;
+    }else{
+
+        $_SESSION["user"] = $row["name"];
         header("Location: user_dashboard.php");
 
     }
 
 }else{
 
-    echo "Login failed";
+    echo "User not found";
 
 }
-
 ?>
