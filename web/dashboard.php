@@ -21,7 +21,7 @@ if(!isset($_SESSION["admin"])){
 
 <a href="manage_users.php">Enable / Disable Users</a><br><br>
 
-<a href="recharge_admin.php">Recharge User Account</a><br><br>
+<a href="admin_recharge.php">Recharge User Account</a><br><br>
 
 
 <h3>Transactions</h3>

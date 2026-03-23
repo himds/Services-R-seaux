@@ -1,7 +1,15 @@
 <?php
+session_start();
 
-// 调用 Python 脚本读取 RFID
-$uid = shell_exec("python3 /home/pi/rfid-payment-system/rfid/rfid_read_once.py");
+$cmd = "sudo python3 /home/pi/rfid-payment-system/rfid/rfid_read_once.py 2>&1"; $output = 
+shell_exec($cmd); $uid = trim($output);
+if ($uid == "") {
+    echo "ERROR";
+    exit;
+}
 
-echo trim($uid);
+// 存 UID
+$_SESSION["rfid_uid"] = $uid;
+
+echo $uid;
 ?>

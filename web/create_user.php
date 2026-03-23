@@ -74,7 +74,7 @@ RFID UID:<br>
 </form>
 
 <br>
-<a href="index.php">Back</a>
+<a href="dashboard.php">Back</a>
 
 <script>
 // 切换模式

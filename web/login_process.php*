@@ -1,0 +1,37 @@
+<?php
+session_start();
+include "db.php";
+
+// RFID 登录优先
+if (isset($_SESSION["rfid_uid"])) {
+    $uid = $_SESSION["rfid_uid"];
+    $sql = "SELECT * FROM users WHERE rfid_uid='$uid'";
+    echo "UID = " . $uid;  
+} else {
+    // 手动输入
+    $name = $_POST["name"];
+    $sql = "SELECT * FROM users WHERE name='$name'";
+}
+
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+
+    $row = $result->fetch_assoc();
+    $name = $row["name"];
+
+    if ($row["role"] == "admin") {
+        $_SESSION["admin"] = $name;
+        header("Location: dashboard.php");
+    } elseif ($row["role"] == "merchant") {
+        $_SESSION["merchant"] = $name;
+        header("Location: merchant_dashboard.php");
+    } else {
+        $_SESSION["user"] = $name;
+        header("Location: user_dashboard.php");
+    }
+
+} else {
+    echo "Login failed";
+}
+?>

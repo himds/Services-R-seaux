@@ -39,3 +39,5 @@ echo "</tr>";
 
 echo "</table>";
 ?>
+
+<a href="dashboard.php">Back</a>

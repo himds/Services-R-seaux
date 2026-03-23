@@ -6,10 +6,8 @@ reader = SimpleMFRC522()
 try:
     print("Place your RFID card")
 
-    id, text = reader.read()
+    id = reader.read()
 
     print("RFID UID:", id)
-    print("Text:", text)
-
 finally:
     GPIO.cleanup()
