@@ -1,20 +1,25 @@
 <?php
 session_start();
-include "db.php";
+include "db.php";  // 数据库连接
 
+// ==========================
+// 🔵 1. RFID 登录
+// ==========================
 if (isset($_SESSION["rfid_uid"])) {
 
     $uid = $_SESSION["rfid_uid"];
 
-    $sql = "SELECT * FROM users WHERE rfid_uid='$uid'";
+    // ✅ 推荐：直接在 SQL 里限制 active
+    $sql = "SELECT * FROM users 
+            WHERE rfid_uid='$uid' AND status='active'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
 
-        // ✅ 用户存在 → 登录
         $row = $result->fetch_assoc();
         $name = $row["name"];
 
+        // ✅ 根据角色跳转
         if ($row["role"] == "admin") {
             $_SESSION["admin"] = $name;
             header("Location: dashboard.php");
@@ -27,25 +32,31 @@ if (isset($_SESSION["rfid_uid"])) {
         }
 
     } else {
-
-        // ❌ UID不存在 → 跳转注册页面
-        header("Location: register.php");
+        // ❌ 用户不存在 或 被禁用
+        echo "<script>alert('❌ Access denied or account disabled!'); window.location.href='login.php';</script>";
     }
 
     exit;
 }
 
-// 备用：手动登录（不变）
+
+// ==========================
+// 🟡 2. 手动登录（备用）
+// ==========================
 if (isset($_POST["name"])) {
 
     $name = $_POST["name"];
-    $sql = "SELECT * FROM users WHERE name='$name'";
+
+    // ✅ 同样限制 status
+    $sql = "SELECT * FROM users 
+            WHERE name='$name' AND status='active'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
 
         $row = $result->fetch_assoc();
 
+        // ✅ 根据角色跳转
         if ($row["role"] == "admin") {
             $_SESSION["admin"] = $name;
             header("Location: dashboard.php");
@@ -58,7 +69,16 @@ if (isset($_POST["name"])) {
         }
 
     } else {
-        echo "Login failed";
+        echo "<script>alert('❌ User not found or account disabled!'); window.location.href='login.php';</script>";
     }
+
+    exit;
 }
+
+
+// ==========================
+// 🔴 3. 非法访问
+// ==========================
+echo "<script>alert('❌ Invalid access!'); window.location.href='login.php';</script>";
+exit;
 ?>
